@@ -1,3 +1,5 @@
+NOTE:  These webhooks are legacy EZ Facility webhooks for use with firmware version 2.81 only!
+
 These are Particle.io webhooks needed by the client firmware.
 Each webhook is a JSON package. To use this, create a webhook then in the webhook editor
 click Custom Template and post one of these packages in the text box. 
@@ -6,6 +8,8 @@ Note that private keys, accounts, and passwords have been removed from this
 file.
 
 2021 09 30   Updated ezfClientByClientID to use Mustache code to reduce the amount of data returned.
+2023 07 27   Changed webhook event names and response topics to "Aezf..." for use during Amilia transition.
+		Amilia webhooks use the old "ezf..." event names and response topics.
 
 {
     "event": "RFIDLogging",
@@ -26,8 +30,9 @@ file.
 }
 
 {
-    "event": "ezfClientByMemberNumber",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByMemberNumber",
+    "name": "AezfClientByMemberNumber for ezfacility.com",
+    "event": "AezfClientByMemberNumber",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}AezfClientByMemberNumber",
     "url": "https://api.sandbox.ezfacility.com/v2/clients/membershipNumber={{{memberNumber}}}",
     "requestType": "GET",
     "noDefaults": true,
@@ -35,19 +40,20 @@ file.
     "responseTemplate": "",
     "headers": {
         "Authorization": "Bearer {{{access_token}}}",
-        "Accept": "application/json",
-        "ez-page-number": "1"
+        "ez-page-number": "1",
+        "Accept": "application/json"
     }
 }
 
 {
-    "event": "ezfClientByClientID",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfClientByClientID",
+    "name": "AezfClientByClientID for ezfacility.com",
+    "event": "AezfClientByClientID",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}AezfClientByClientID",
     "url": "https://api.sandbox.ezfacility.com/v2/clients/{{{clientID}}}",
     "requestType": "GET",
     "noDefaults": true,
     "rejectUnauthorized": true,
-    "responseTemplate": "{{! Mustache Code for ezfClientByClientID return values \n\tMake JSON that is just what we need in the client from what\n\tis returned from the EZF CRM system.\n\t}}\n\t{\n\t\"AmountDue\":{{AmountDue}},\n\t\"ClientID\":{{ClientID}},\n\n\t\"CustomFields\": [\n\n\t\t{{#CustomFields}} \n\t\t\t{\"Name\":\"{{Name}}\", \"Value\":\"{{Value}}\" },\n \t\t{{/CustomFields}} \n \t\t\n \t\t{\"Name\":\"Junk\",\"Value\":\"JunkValue\"}\n\t],\n\t   \n\t\"FirstName\":\"{{FirstName}}\",\n\t\"LastName\":\"{{LastName}}\",\n\t\"MembershipContractStatus\":\"{{MembershipContractStatus}}\",\n\t\"MembershipNumber\":\"{{MembershipNumber}}\"\n\t}",
+    "responseTemplate": "{{! Mustache Code for ezfClientByClientID return values  Make JSON that is just what we need in the client from what is returned from the EZF CRM system. }} { \"AmountDue\":{{AmountDue}}, \"ClientID\":{{ClientID}}, \"CustomFields\": [ {{#CustomFields}} {\"Name\":\"{{Name}}\", \"Value\":\"{{Value}}\" },  {{/CustomFields}}   {\"Name\":\"Junk\",\"Value\":\"JunkValue\"} ],     \"FirstName\":\"{{FirstName}}\", \"LastName\":\"{{LastName}}\", \"MembershipContractStatus\":\"{{MembershipContractStatus}}\", \"MembershipNumber\":\"{{MembershipNumber}}\" }\n    ",
     "headers": {
         "ez-page-number": "1",
         "Accept": "application/json",
@@ -56,40 +62,47 @@ file.
 }
 
 {
-    "event": "ezfCheckInToken",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
-    "errorResponseTopic": "{{PARTICLE_DEVICE_ID}}ezfCheckInToken",
+    "name": "AezfCheckInToken for ezfacility.com",
+    "event": "AezfCheckInToken",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}AezfCheckInToken",
+    "errorResponseTopic": "",
     "url": "https://api.sandbox.ezfacility.com/token",
     "requestType": "POST",
     "noDefaults": true,
     "rejectUnauthorized": true,
     "responseTemplate": "",
     "headers": {
-        "Authorization": "Basic ...",
+        "Authorization": "Basic NGRkNzk5NjA6YTg2OTc5NTQwNWU2NjNhYTE3ZmE5MWE4MmNiNDQzNTY=",
         "Accept": "application/json",
         "Content-type": "application/x-www-form-urlencoded"
     },
     "form": {
-        "password": "...",
-        "username": "...",
+        "password": "BlueUSb7pen$",
+        "username": "makernexusdev",
         "grant_type": "password",
         "scope": "realm:tms"
+    },
+    "todayCounters": {
+        "date": "20230727",
+        "error": 25,
+        "sleep": 2
     }
 }
 
 
 {
-    "event": "ezfGetPackagesByClientID",
-    "responseTopic": "{{PARTICLE_DEVICE_ID}}ezfGetPackagesByClientID",
+    "name": "AezfGetPackagesByClientID for ezfacility.com",
+    "event": "AezfGetPackagesByClientID",
+    "responseTopic": "{{PARTICLE_DEVICE_ID}}AezfGetPackagesByClientID",
     "url": "https://api.sandbox.ezfacility.com/v2/packages/{{{clientID}}}/active",
     "requestType": "GET",
     "noDefaults": true,
     "rejectUnauthorized": true,
     "responseTemplate": "{{#0}} {{ReservationType}}| {{/0}}\n{{#1}} {{ReservationType}}| {{/1}}\n{{#2}} {{ReservationType}}| {{/2}}\n{{#3}} {{ReservationType}}| {{/3}}\n{{#4}} {{ReservationType}}| {{/4}}\n{{#5}} {{ReservationType}}| {{/5}}\n{{#6}} {{ReservationType}}| {{/6}}\n{{#7}} {{ReservationType}}| {{/7}}\n{{#8}} {{ReservationType}}| {{/8}}\n{{#9}} {{ReservationType}}| {{/9}}\n{{#10}} {{ReservationType}}| {{/10}}\n{{#11}} {{ReservationType}}| {{/11}}\n{{#12}} {{ReservationType}}| {{/12}}\n{{#13}} {{ReservationType}}| {{/13}}\n{{#14}} {{ReservationType}}| {{/14}}\nEndOfPackages\n",
     "headers": {
-        "Authorization": "Bearer {{{access_token}}}",
+        "ez-page-number": "1",
         "Accept": "application/json",
-        "ez-page-number": "1"
+        "Authorization": "Bearer {{{access_token}}}"
     }
 }
 
