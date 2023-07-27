@@ -153,8 +153,12 @@
  *  2.6  Added Manager on Duty functionality. See design docs.
  *  2.7  Changed state of green button to correspond to the production PCB
  *  2.8  package checking is now done in all upper case
+ *  2.81    TEMPORARY RELASE for Amilia transition.  Makes legacy calls to EZ facility to open
+ *          the front door (and possibly other legacy functions) when presented witha legacy
+ *          EZ Facility RFID card, for use during the transition to Amilia only!  Requires
+ *          legacy webhooks and response topics that are lablelled Aezf....
 ************************************************************************/
-#define MN_FIRMWARE_VERSION 2.8
+#define MN_FIRMWARE_VERSION 2.81
 
 // Our UTILITIES
 #include "mnutils.h"
@@ -459,7 +463,7 @@ void particleCallbackMNLOGDB (const char *event, const char *data) {
 //--------------- particleCallbackEZF --------------------
 // 
 // This routine  is registered with the particle cloud to receive any
-// events that begin with this device and "ezf". This routine will accept
+// events that begin with this device and "Aezf". This routine will accept
 // the callback and then call the appropriate handler.
 //
 void particleCallbackEZF (const char *event, const char *data) {
@@ -473,23 +477,23 @@ void particleCallbackEZF (const char *event, const char *data) {
     // NOTE: NEVER call particle publish (incuding debugEvent) from any
     // routine called from here. Your Particle  processor will  panic
 
-    if (eventName.indexOf(myDeviceID + "ezfCheckInToken") >= 0) {
+    if (eventName.indexOf(myDeviceID + "AezfCheckInToken") >= 0) {
     
         ezfReceiveCheckInToken(event, data );       
 
-    } else if (eventName.indexOf(myDeviceID + "ezfClientByMemberNumber") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "AezfClientByMemberNumber") >= 0) {
 
         ezfReceiveClientByMemberNumber(event, data );
 
-    } else if (eventName.indexOf(myDeviceID + "ezfClientByClientID") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "AezfClientByClientID") >= 0) {
 
         ezfReceiveClientByClientID(event, data );
 
-    } else if (eventName.indexOf(myDeviceID + "ezfCheckInClient") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "AezfCheckInClient") >= 0) {
 
         // known webhook, but we don't do anything with the return code   
         
-    } else if (eventName.indexOf(myDeviceID + "ezfGetPackagesByClientID") >= 0) {
+    } else if (eventName.indexOf(myDeviceID + "AezfGetPackagesByClientID") >= 0) {
 
         ezfReceivePackagesByClientID(event, data);
 
@@ -559,7 +563,7 @@ int ezfGetCheckInToken (bool cardIsPresented) {
                 // we haven't asked for a token in a while, so ask for one 
                 g_authTokenCheckIn.token = "";
                 g_tokenResponseBuffer = "";
-                Particle.publish("ezfCheckInToken", "", PRIVATE);
+                Particle.publish("AezfCheckInToken", "", PRIVATE);
                 lastRequest = millis();
             }
 
@@ -862,7 +866,7 @@ int ezfClientByMemberNumber (String data) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    int rtnCode = Particle.publish("ezfClientByMemberNumber",output, PRIVATE );
+    int rtnCode = Particle.publish("AezfClientByMemberNumber",output, PRIVATE );
     if (rtnCode){} //XXX
     
     return g_clientInfo.memberNumber.toInt();
@@ -940,7 +944,7 @@ int ezfClientByClientID (int clientID) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    Particle.publish("ezfClientByClientID",output, PRIVATE );
+    Particle.publish("AezfClientByClientID",output, PRIVATE );
     
     return 0;
 }
@@ -1033,7 +1037,7 @@ int ezfGetPackagesByClientID (int clientID) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    int rtnCode = Particle.publish("ezfGetPackagesByClientID",output, PRIVATE );
+    int rtnCode = Particle.publish("AezfGetPackagesByClientID",output, PRIVATE );
     
     return rtnCode;
 }
@@ -1220,7 +1224,7 @@ int ezfCheckInClient(String clientID) {
     char output[1000];
     serializeJson(docJSON, output);
     
-    int rtnCode = Particle.publish("ezfCheckInClient",output, PRIVATE );
+    int rtnCode = Particle.publish("AezfCheckInClient",output, PRIVATE );
     
     return rtnCode;
 }
